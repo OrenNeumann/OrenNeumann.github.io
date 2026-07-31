@@ -1,0 +1,49 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../../components/EntryList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = await getCollection("posts");
+const drafts = import.meta.env.DEV ? await getCollection("drafts") : [];
+const entries = [
+  ...posts.map((entry) => ({ ...entry, isDraft: false })),
+  ...drafts.map((entry) => ({ ...entry, isDraft: true })),
+].sort((a, b) => b.data.published.valueOf() - a.data.published.valueOf());
+---
+
+<BaseLayout title="Writing — Your Name" description="Research notes, essays, and experiments.">
+  <header class="page-header shell">
+    <p class="eyebrow">Writing</p>
+    <h1>Notes from the workbench.</h1>
+    <p>Research explanations, experiments, and ideas worth developing in public.</p>
+  </header>
+  <section class="listing shell">
+    <EntryList entries={entries} />
+  </section>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding-block: 7rem 4rem;
+  }
+
+  h1 {
+    max-width: 44rem;
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(2.7rem, 7vw, 5.3rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .page-header > p:last-child {
+    max-width: 38rem;
+    margin: 1.5rem 0 0;
+    color: var(--ink-soft);
+  }
+
+  .listing {
+    padding-bottom: 3rem;
+  }
+</style>

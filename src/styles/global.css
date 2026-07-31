@@ -1,0 +1,128 @@
+:root {
+  color-scheme: dark;
+  --canvas: #11110f;
+  --canvas-raised: #181816;
+  --ink: #e9e5dc;
+  --ink-soft: #aaa69d;
+  --ink-faint: #747168;
+  --line: #302f2b;
+  --line-strong: #46443e;
+  --signal: #e5b567;
+  --signal-soft: #6f5834;
+  --draft: #82c7ba;
+  --measure: 44rem;
+  --wide: 72rem;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 20rem;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    var(--canvas);
+  background-position: 0 7.5rem;
+  background-size: 100% 1px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  color: var(--canvas);
+  background: var(--signal);
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--signal-soft);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+a:hover {
+  text-decoration-color: var(--signal);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+}
+
+.shell {
+  width: min(calc(100% - 3rem), var(--wide));
+  margin-inline: auto;
+}
+
+.eyebrow {
+  margin: 0 0 0.8rem;
+  color: var(--signal);
+  font: 600 0.7rem/1.2 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+.local-badge {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--draft) 45%, transparent);
+  border-radius: 999px;
+  color: var(--draft);
+  font: 600 0.68rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.local-badge::before {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+@media (max-width: 42rem) {
+  .shell {
+    width: min(calc(100% - 2rem), var(--wide));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

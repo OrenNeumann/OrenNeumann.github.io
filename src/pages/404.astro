@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Not found">
+  <section class="shell not-found">
+    <p class="eyebrow">404</p>
+    <h1>This path ends here.</h1>
+    <p><a href="/">Return home</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 60vh;
+    padding-block: 8rem;
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 400;
+  }
+</style>

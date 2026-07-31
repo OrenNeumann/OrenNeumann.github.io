@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -eu
+
+SITE_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+LOCAL_NODE_BIN="$SITE_ROOT/.tools/node-v24.18.1-linux-x64/bin"
+
+node_is_modern() {
+  command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1 && [ "$(node -p 'Number(process.versions.node.split(".")[0])')" -ge 22 ]
+}
+
+if ! node_is_modern; then
+  if [ -x "$LOCAL_NODE_BIN/node" ]; then
+    export PATH="$LOCAL_NODE_BIN:$PATH"
+  else
+    echo "The local development runtime is not installed." >&2
+    echo "Run ./scripts/bootstrap once, then retry." >&2
+    exit 1
+  fi
+fi
+
+cd "$SITE_ROOT"
+
+case "${1:-dev}" in
+  dev)
+    [ -d node_modules ] || npm ci --no-audit --no-fund
+    exec npm run dev -- --host 127.0.0.1
+    ;;
+  build)
+    [ -d node_modules ] || npm ci --no-audit --no-fund
+    exec npm run build
+    ;;
+  preview)
+    [ -d dist ] || npm run build
+    exec npm run preview -- --host 127.0.0.1
+    ;;
+  new)
+    shift
+    [ -d node_modules ] || npm ci --no-audit --no-fund
+    exec npm run new:draft -- "$@"
+    ;;
+  *)
+    echo "Usage: ./scripts/site {dev|build|preview|new \"Draft title\"}" >&2
+    exit 1
+    ;;
+esac

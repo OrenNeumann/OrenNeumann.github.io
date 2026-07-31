@@ -1,0 +1,267 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+type ArticleEntry = CollectionEntry<"posts"> | CollectionEntry<"drafts">;
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts");
+  const drafts = import.meta.env.DEV ? await getCollection("drafts") : [];
+
+  return [
+    ...posts.map((entry) => ({ entry, isDraft: false })),
+    ...drafts.map((entry) => ({ entry, isDraft: true })),
+  ].map(({ entry, isDraft }) => ({
+    params: { id: entry.id.replace(/\.(md|mdx)$/, "") },
+    props: { entry, isDraft },
+  }));
+}
+
+interface Props {
+  entry: ArticleEntry;
+  isDraft: boolean;
+}
+
+const { entry, isDraft } = Astro.props;
+const { Content, headings } = await render(entry);
+const date = new Intl.DateTimeFormat("en", { year: "numeric", month: "long", day: "numeric" });
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+<BaseLayout title={`${entry.data.title} — Your Name`} description={entry.data.description}>
+  {isDraft && (
+    <div class="draft-banner">
+      <div class="shell"><span class="local-badge">Private draft</span> This page exists only in your local preview.</div>
+    </div>
+  )}
+
+  <header class="article-header shell">
+    <p class="eyebrow">{entry.data.tags.join(" · ") || "Note"}</p>
+    <h1>{entry.data.title}</h1>
+    <p class="description">{entry.data.description}</p>
+    <div class="article-meta">
+      <time datetime={entry.data.published.toISOString()}>{date.format(entry.data.published)}</time>
+      {entry.data.updated && <span>Updated {date.format(entry.data.updated)}</span>}
+    </div>
+  </header>
+
+  <div class:list={["article-shell shell", { "without-toc": toc.length === 0 }]}>
+    {toc.length > 0 && (
+      <aside aria-label="On this page">
+        <p>On this page</p>
+        <ol>
+          {toc.map((heading) => (
+            <li class:list={[`depth-${heading.depth}`]}><a href={`#${heading.slug}`}>{heading.text}</a></li>
+          ))}
+        </ol>
+      </aside>
+    )}
+    <article class="prose">
+      <Content />
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .draft-banner {
+    padding-block: 0.7rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--draft) 30%, transparent);
+    color: var(--ink-soft);
+    background: color-mix(in srgb, var(--draft) 5%, var(--canvas));
+    font-size: 0.72rem;
+  }
+
+  .draft-banner .shell {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+  }
+
+  .article-header {
+    max-width: calc(var(--measure) + 12rem);
+    padding-block: 7rem 4rem;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 auto;
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+
+  .description {
+    max-width: 42rem;
+    margin: 1.5rem auto 0;
+    color: var(--ink-soft);
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+  }
+
+  .article-meta {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    color: var(--ink-faint);
+    font: 0.68rem/1.4 var(--mono);
+    text-transform: uppercase;
+  }
+
+  .article-shell {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, var(--measure)) 11rem;
+    gap: 3rem;
+    justify-content: center;
+    padding-top: 4rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .article-shell.without-toc {
+    grid-template-columns: minmax(0, var(--measure));
+  }
+
+  aside {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+    grid-column: 1;
+    color: var(--ink-faint);
+    font-size: 0.7rem;
+  }
+
+  aside > p {
+    margin: 0 0 0.8rem;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  aside ol {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  aside li {
+    margin: 0.45rem 0;
+    line-height: 1.35;
+  }
+
+  aside .depth-3 {
+    padding-left: 0.8rem;
+  }
+
+  aside a {
+    text-decoration: none;
+  }
+
+  aside a:hover {
+    color: var(--ink);
+  }
+
+  .prose {
+    grid-column: 2;
+    min-width: 0;
+    font-family: var(--serif);
+    font-size: clamp(1.03rem, 1.8vw, 1.15rem);
+    line-height: 1.78;
+  }
+
+  .without-toc .prose {
+    grid-column: 1;
+  }
+
+  .prose :global(h2),
+  .prose :global(h3) {
+    scroll-margin-top: 2rem;
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.25;
+  }
+
+  .prose :global(h2) {
+    margin: 4rem 0 1rem;
+    font-size: 1.65rem;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+  }
+
+  .prose :global(h3) {
+    margin: 2.5rem 0 0.8rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol),
+  .prose :global(blockquote) {
+    margin-block: 1.4rem;
+  }
+
+  .prose :global(a) {
+    color: var(--ink);
+  }
+
+  .prose :global(blockquote) {
+    padding-left: 1.2rem;
+    border-left: 2px solid var(--signal);
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .prose :global(code) {
+    padding: 0.12em 0.28em;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--canvas-raised);
+    font: 0.82em/1.4 var(--mono);
+  }
+
+  .prose :global(pre) {
+    overflow-x: auto;
+    padding: 1.2rem;
+    margin-block: 2rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 0.82rem;
+  }
+
+  .prose :global(pre code) {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .prose :global(img),
+  .prose :global(figure) {
+    margin-block: 2.5rem;
+  }
+
+  .prose :global(hr) {
+    width: 5rem;
+    margin: 4rem auto;
+    border: 0;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  @media (max-width: 64rem) {
+    .article-shell {
+      grid-template-columns: minmax(0, var(--measure));
+    }
+
+    aside {
+      position: static;
+      grid-column: 1;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .prose {
+      grid-column: 1;
+    }
+  }
+</style>

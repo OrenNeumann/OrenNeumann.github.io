@@ -1,7 +1,7 @@
-# Build output (uncomment whichever your generator uses)
+# Build output
+dist/
 # _site/
 # public/
-# dist/
 # docs/
 
 # Generator caches
@@ -15,10 +15,15 @@ resources/_gen/
 .next/
 .cache/
 
-# Dependencies
+# Dependencies and local tools
 node_modules/
 vendor/
 .bundle/
+.tools/
+
+# Local-only writing. Keep the directory, never its contents.
+drafts/*
+!drafts/.gitkeep
 
 # Python
 __pycache__/

@@ -1,0 +1,36 @@
+<footer>
+  <div class="shell footer-inner">
+    <p>Built as a small, static corner of the web.</p>
+    <p><a href="/writing/">Writing</a> · <a href="#top">Back to top</a></p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: 7rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 0.75rem;
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-block: 2rem 3rem;
+  }
+
+  footer p {
+    margin: 0;
+  }
+
+  @media (max-width: 34rem) {
+    .footer-inner {
+      display: block;
+    }
+
+    footer p + p {
+      margin-top: 0.5rem;
+    }
+  }
+</style>

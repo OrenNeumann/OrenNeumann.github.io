@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -eu
+
+SITE_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+NODE_VERSION="24.18.1"
+NODE_ARCHIVE="node-v${NODE_VERSION}-linux-x64.tar.xz"
+NODE_SHA256="d6c664df3f3f61458e8c277585571328522d705166723a7c7823a9253a4d15a0"
+NODE_PARENT="$SITE_ROOT/.tools"
+NODE_DIRECTORY="$NODE_PARENT/node-v${NODE_VERSION}-linux-x64"
+
+if [ -x "$NODE_DIRECTORY/bin/node" ]; then
+  echo "Local Node.js ${NODE_VERSION} is already installed."
+else
+  case "$(uname -s)-$(uname -m)" in
+    Linux-x86_64) ;;
+    *)
+      echo "This bootstrap script supports Linux x86_64 only. Install Node.js 24 LTS, then run npm install." >&2
+      exit 1
+      ;;
+  esac
+
+  command -v curl >/dev/null 2>&1 || { echo "curl is required." >&2; exit 1; }
+  command -v sha256sum >/dev/null 2>&1 || { echo "sha256sum is required." >&2; exit 1; }
+
+  mkdir -p "$NODE_PARENT"
+  NODE_ARCHIVE_PATH="$NODE_PARENT/$NODE_ARCHIVE"
+
+  echo "Downloading the official Node.js ${NODE_VERSION} binary..."
+  echo "Interrupted downloads can be resumed by running this script again."
+  curl -fL --retry 3 --connect-timeout 15 -C - "https://nodejs.org/dist/v${NODE_VERSION}/${NODE_ARCHIVE}" -o "$NODE_ARCHIVE_PATH"
+  printf '%s  %s\n' "$NODE_SHA256" "$NODE_ARCHIVE_PATH" | sha256sum --check --status
+  tar -xJf "$NODE_ARCHIVE_PATH" -C "$NODE_PARENT"
+  echo "Installed and verified Node.js in .tools/."
+fi
+
+export PATH="$NODE_DIRECTORY/bin:$PATH"
+cd "$SITE_ROOT"
+
+if [ -f package-lock.json ]; then
+  npm ci --no-audit --no-fund
+else
+  npm install --no-audit --no-fund
+fi
+
+echo
+echo "Setup complete. Start the private preview with:"
+echo "  ./scripts/site dev"

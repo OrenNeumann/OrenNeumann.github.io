@@ -1,0 +1,127 @@
+---
+type Entry = {
+  id: string;
+  data: {
+    title: string;
+    description: string;
+    published: Date;
+    tags?: string[];
+  };
+  isDraft?: boolean;
+};
+
+interface Props {
+  entries: Entry[];
+  emptyText?: string;
+}
+
+const { entries, emptyText = "Nothing published yet." } = Astro.props;
+const formatter = new Intl.DateTimeFormat("en", { year: "numeric", month: "short" });
+const hrefFor = (id: string) => `/writing/${id.replace(/\.(md|mdx)$/, "")}/`;
+---
+
+{
+  entries.length > 0 ? (
+    <ol class="entries">
+      {entries.map((entry) => (
+        <li>
+          <a href={hrefFor(entry.id)}>
+            <div class="entry-meta">
+              <time datetime={entry.data.published.toISOString()}>
+                {formatter.format(entry.data.published)}
+              </time>
+              {entry.isDraft && <span class="draft-label">Private draft</span>}
+            </div>
+            <div>
+              <h3>{entry.data.title}</h3>
+              <p>{entry.data.description}</p>
+            </div>
+            <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p class="empty">{emptyText}</p>
+  )
+}
+
+<style>
+  .entries {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  li {
+    border-bottom: 1px solid var(--line);
+  }
+
+  li > a {
+    display: grid;
+    grid-template-columns: 7rem 1fr auto;
+    gap: 1.5rem;
+    align-items: start;
+    padding: 1.4rem 0;
+    text-decoration: none;
+  }
+
+  li > a:hover h3 {
+    color: var(--signal);
+  }
+
+  .entry-meta {
+    padding-top: 0.2rem;
+    color: var(--ink-faint);
+    font: 0.68rem/1.5 var(--mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .draft-label {
+    display: block;
+    color: var(--draft);
+  }
+
+  h3 {
+    margin: 0 0 0.25rem;
+    font-family: var(--serif);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 500;
+    line-height: 1.25;
+    transition: color 150ms ease;
+  }
+
+  p {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .arrow {
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+  }
+
+  .empty {
+    padding: 1.5rem 0;
+    border-block: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-family: var(--serif);
+    font-style: italic;
+  }
+
+  @media (max-width: 42rem) {
+    li > a {
+      grid-template-columns: 1fr auto;
+      gap: 0.7rem 1rem;
+    }
+
+    .entry-meta {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

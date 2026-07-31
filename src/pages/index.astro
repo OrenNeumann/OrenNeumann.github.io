@@ -1,0 +1,291 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../components/EntryList.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const posts = await getCollection("posts");
+const drafts = import.meta.env.DEV ? await getCollection("drafts") : [];
+const entries = [
+  ...posts.map((entry) => ({ ...entry, isDraft: false })),
+  ...drafts.map((entry) => ({ ...entry, isDraft: true })),
+].sort((a, b) => b.data.published.valueOf() - a.data.published.valueOf());
+---
+
+<BaseLayout title="Your Name — Research and writing">
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow">Research · Engineering · Notes</p>
+      <h1>Your Name</h1>
+      <p class="lede">
+        A short, precise sentence about the questions you work on and the things you like to build.
+      </p>
+      <p class="links"><a href="#work">Selected work</a> <span>·</span> <a href="/writing/">Writing</a></p>
+    </div>
+
+    <svg class="trajectory" viewBox="0 0 480 260" role="img" aria-labelledby="trajectory-title trajectory-desc">
+      <title id="trajectory-title">An abstract trajectory through a state space</title>
+      <desc id="trajectory-desc">A quiet decorative line connecting several points.</desc>
+      <g class="grid">
+        <path d="M1 52.5H479M1 104.5H479M1 156.5H479M1 208.5H479" />
+        <path d="M96.5 1V259M192.5 1V259M288.5 1V259M384.5 1V259" />
+      </g>
+      <path class="path-shadow" d="M22 214C77 207 94 146 139 151S200 207 247 174 280 84 335 92 396 146 459 41" />
+      <path class="path" d="M22 214C77 207 94 146 139 151S200 207 247 174 280 84 335 92 396 146 459 41" />
+      <g class="states">
+        <circle cx="22" cy="214" r="4" />
+        <circle cx="139" cy="151" r="4" />
+        <circle cx="247" cy="174" r="4" />
+        <circle cx="335" cy="92" r="4" />
+        <circle class="terminal" cx="459" cy="41" r="6" />
+      </g>
+    </svg>
+  </section>
+
+  <section class="section shell" id="work">
+    <div class="section-heading">
+      <p class="eyebrow">01 · Selected work</p>
+      <p class="section-note">A small selection, not an exhaustive CV.</p>
+    </div>
+    <div class="project-grid">
+      <article>
+        <p class="project-kind">Research project</p>
+        <h2><a href="#">Project title</a></h2>
+        <p>A one-sentence account of the question, contribution, or useful thing.</p>
+        <p class="project-links"><a href="#">Paper</a> <a href="#">Code</a> <a href="#">Project page</a></p>
+      </article>
+      <article>
+        <p class="project-kind">Independent experiment</p>
+        <h2><a href="#">Another piece of work</a></h2>
+        <p>Enough context to understand why this belongs here without reading an abstract.</p>
+        <p class="project-links"><a href="#">Notes</a> <a href="#">Demo</a></p>
+      </article>
+    </div>
+    <p class="preview-note">Placeholder cards for local design preview—replace or remove before publishing.</p>
+  </section>
+
+  <section class="section shell">
+    <div class="section-heading">
+      <p class="eyebrow">02 · Writing</p>
+      <a class="section-note" href="/writing/">View all notes →</a>
+    </div>
+    <EntryList entries={entries.slice(0, 5)} />
+  </section>
+
+  <section class="section about shell" id="about">
+    <p class="eyebrow">03 · About</p>
+    <div>
+      <p class="about-lede">A compact biography belongs here.</p>
+      <p>
+        Two or three sentences are plenty: what you do, what kinds of problems hold your attention,
+        and perhaps one glimpse of life outside the work.
+      </p>
+      <p class="about-links"><a href="#">Email</a> <a href="#">GitHub</a> <a href="#">Scholar</a> <a href="#">CV</a></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.85fr);
+    gap: clamp(3rem, 8vw, 8rem);
+    align-items: center;
+    min-height: min(42rem, calc(100vh - 4.5rem));
+    padding-block: 7rem;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(3rem, 7vw, 5.8rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+  }
+
+  .lede {
+    max-width: 35rem;
+    margin: 1.8rem 0 0;
+    color: var(--ink-soft);
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    line-height: 1.5;
+  }
+
+  .links {
+    display: flex;
+    gap: 0.65rem;
+    margin-top: 2rem;
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+  }
+
+  .links span {
+    color: var(--line-strong);
+  }
+
+  .trajectory {
+    overflow: visible;
+  }
+
+  .grid path {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+
+  .path-shadow,
+  .path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .path-shadow {
+    stroke: var(--canvas);
+    stroke-width: 8;
+  }
+
+  .path {
+    stroke: var(--signal);
+    stroke-width: 1.5;
+  }
+
+  .states circle {
+    fill: var(--canvas);
+    stroke: var(--signal);
+    stroke-width: 1.5;
+  }
+
+  .states .terminal {
+    fill: var(--signal);
+  }
+
+  .section {
+    padding-block: 5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .section-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    align-items: baseline;
+    margin-bottom: 2rem;
+  }
+
+  .section-heading .eyebrow {
+    margin: 0;
+  }
+
+  .section-note,
+  .preview-note {
+    margin: 0;
+    color: var(--ink-faint);
+    font-size: 0.72rem;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: var(--line);
+  }
+
+  .project-grid article {
+    min-height: 18rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    background: var(--canvas-raised);
+  }
+
+  .project-kind {
+    color: var(--ink-faint);
+    font: 0.66rem/1.3 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .project-grid h2 {
+    max-width: 18rem;
+    margin: 3.5rem 0 0.8rem;
+    font-family: var(--serif);
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    font-weight: 400;
+    line-height: 1.15;
+  }
+
+  .project-grid h2 a {
+    text-decoration: none;
+  }
+
+  .project-grid article > p:not(.project-kind, .project-links) {
+    max-width: 30rem;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    font-size: 0.72rem;
+  }
+
+  .preview-note {
+    margin-top: 0.8rem;
+    font-style: italic;
+  }
+
+  .about {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+  }
+
+  .about > div {
+    max-width: 39rem;
+  }
+
+  .about p {
+    color: var(--ink-soft);
+  }
+
+  .about .about-lede {
+    margin-top: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1.55rem;
+  }
+
+  .about-links {
+    display: flex;
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 48rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding-block: 5rem;
+    }
+
+    .trajectory {
+      width: min(100%, 30rem);
+    }
+
+    .project-grid,
+    .about {
+      grid-template-columns: 1fr;
+    }
+
+    .project-grid article {
+      min-height: 15rem;
+    }
+  }
+</style>
