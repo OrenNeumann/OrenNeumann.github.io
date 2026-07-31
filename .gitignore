@@ -1,0 +1,39 @@
+# Build output (uncomment whichever your generator uses)
+# _site/
+# public/
+# dist/
+# docs/
+
+# Generator caches
+.quarto/
+_freeze/
+.jekyll-cache/
+.jekyll-metadata
+.hugo_build.lock
+resources/_gen/
+.astro/
+.next/
+.cache/
+
+# Dependencies
+node_modules/
+vendor/
+.bundle/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
